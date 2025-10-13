@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Employee Form</title>
+    <style>
+        .error { color: red; font-size: 0.9em; }
+        fieldset { margin-bottom: 20px; text-align: left; }
+        h2, p, form, button { text-align: left; }
+    </style>
+</head>
+<body>
+<h2>Employee Registration Form</h2>
+
+<form th:action="@{/saveEmployee}" th:object="${employee}" method="post" id="employeeForm">
+
+    <!-- Personal & Job Details -->
+    <fieldset>
+        <legend>Personal & Job Details</legend>
+        <table>
+            <tr>
+                <td>Employee ID:</td>
+                <td>
+                    <input type="text" th:field="*{empId}" id="empId" readonly>
+                    <span class="error"></span>
+                </td>
+            </tr>
+		<tr>
+    <td>Department:</td>
+    <td>
+        <input type="text" th:field="*{department.name}" id="department" placeholder="Enter Department Name">
+        <span class="error"></span>
+    </td>
+</tr>
+
+
+            <tr>
+                <td>Full Name:</td>
+                <td>
+                    <input type="text" th:field="*{empName}" id="empName">
+                    <span class="error"></span>
+                </td>
+            </tr>
+            <tr>
+                <td>Date of Birth:</td>
+                <td>
+                    <input type="date" th:field="*{dob}" id="dob">
+                    <span class="error"></span>
+                </td>
+            </tr>
+            <tr>
+                <td>Gender:</td>
+                <td>
+                    <input type="radio" th:field="*{gender}" value="Male"> Male
+                    <input type="radio" th:field="*{gender}" value="Female"> Female
+                    <input type="radio" th:field="*{gender}" value="Other"> Other
+                    <span class="error"></span>
+                </td>
+            </tr>
+            <tr>
+                <td>Present Address:</td>
+                <td>
+                    <input type="text" th:field="*{presentAddress}" id="presentAddress">
+                    <span class="error"></span>
+                </td>
+            </tr>
+            <tr>
+                <td>Permanent Address:</td>
+                <td>
+                    <input type="text" th:field="*{permanentAddress}" id="permanentAddress">
+                    <span class="error"></span>
+                </td>
+            </tr>
+            <tr>
+                <td>Email ID:</td>
+                <td>
+                    <input type="email" th:field="*{emailId}" id="emailId">
+                    <span class="error"></span>
+                </td>
+            </tr>
+            <tr>
+                <td>Contact:</td>
+                <td>
+                    <input type="text" th:field="*{contact}" id="contact" placeholder="10 digits">
+                    <span class="error"></span>
+                </td>
+            </tr>
+            <tr>
+  <td>Blood Group:</td>
+  <td><input type="text" th:field="*{bloodGroup}" id="bloodGroup"></td>
+</tr>
+
+<tr>
+  <td>Marital Status:</td>
+  <td>
+    <select th:field="*{maritalStatus}">
+      <option value="">-- Select --</option>
+      <option value="Single">Single</option>
+      <option value="Married">Married</option>
+    </select>
+  </td>
+</tr>
+            <tr>
+                <td>Salary:</td>
+                <td><input type="number" step="0.01" th:field="*{salary}"></td>
+            </tr>
+        </table>
+    </fieldset>
+
+    <!-- Education Details -->
+    <fieldset>
+        <legend>Education Details</legend>
+        <table>
+            <tr>
+                <td>Qualification:</td>
+                <td><input type="text" th:field="*{qualification}"></td>
+            </tr>
+            <tr>
+                <td>University:</td>
+                <td><input type="text" th:field="*{university}"></td>
+            </tr>
+            <tr>
+                <td>Year of Passing:</td>
+                <td>
+                    <input type="number" th:field="*{yearOfPassing}" id="yearOfPassing">
+                    <span class="error"></span>
+                </td>
+            </tr>
+        </table>
+    </fieldset>
+
+    <!-- KYC Details -->
+    <fieldset>
+        <legend>KYC Details</legend>
+        <table>
+            <tr>
+                <td>Aadhaar Number:</td>
+                <td>
+                    <input type="text" th:field="*{aadhaarNumber}" id="aadhaarNumber">
+                    <span class="error"></span>
+                </td>
+            </tr>
+            <tr>
+                <td>PAN Number:</td>
+                <td>
+                    <input type="text" th:field="*{panNumber}" id="panNumber">
+                    <span class="error"></span>
+                </td>
+            </tr>
+        </table>
+    </fieldset>
+
+    <p>
+        <button type="submit">Save Employee</button>
+    </p>
+</form>
+
+<form th:action="@{/}" method="get">
+    <button type="submit">Back to Home</button>
+</form>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    // Get all input/select/radio fields
+    const fields = Array.from(document.querySelectorAll("input, select"));
+
+    //  Validators for each field by id 
+    const validators = {
+        empName: val => val.trim() !== "" ? "" : "Employee name required",
+        dob: val => {
+            if (!val) return "DOB required";
+            const age = Math.floor((Date.now() - new Date(val).getTime()) / (1000*60*60*24*365.25));
+            return age >= 18 ? "" : "Employee must be 18+";
+        },
+        contact: val => /^[0-9]{10}$/.test(val) ? "" : "Contact must be 10 digits",
+        emailId: val => /^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$/.test(val) ? "" : "Invalid email",
+        aadhaarNumber: val => /^[0-9]{12}$/.test(val) ? "" : "Aadhaar must be 12 digits",
+        panNumber: val => /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(val) ? "" : "PAN format ABCDE1234F",
+        yearOfPassing: val => val >= 1900 && val <= new Date().getFullYear() ? "" : "Enter valid year",
+        presentAddress: val => val.trim() !== "" ? "" : "Present address required",
+        permanentAddress: val => val.trim() !== "" ? "" : "Permanent address required",
+        gender: val => val ? "" : "Select gender"
+    };
+
+    //  Function to validate a field and show error 
+    const validateField = (field) => {
+        const errorSpan = field.parentElement.querySelector('.error');
+        let value = field.value;
+
+        // For radio buttons, get the checked value
+        if (field.type === "radio") {
+            const radios = document.querySelectorAll(`input[name="${field.name}"]`);
+            value = Array.from(radios).find(r => r.checked)?.value || "";
+        }
+
+        const errorMsg = validators[field.id] ? validators[field.id](value) : "";
+        if (errorSpan) errorSpan.textContent = errorMsg;
+
+        field.style.border = errorMsg ? "1px solid red" : "1px solid green";
+
+        return !errorMsg;
+    };
+
+    //Add event listeners to all fields
+    fields.forEach((field, index) => {
+        field.addEventListener("input", () => validateField(field));
+        field.addEventListener("blur", () => validateField(field));
+
+        field.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                if (validateField(field)) {
+                    let nextField = fields[index + 1];
+
+                    while (nextField && (nextField.offsetParent === null || nextField.readOnly)) {
+                        index++;
+                        nextField = fields[index + 1];
+                    }
+
+                    if (nextField) nextField.focus();
+                }
+            }
+        });
+    });
+
+    // Validate all fields on form submit
+    const form = document.getElementById("employeeForm");
+    form.addEventListener("submit", (e) => {
+        let hasError = false;
+        fields.forEach(field => {
+            if (!validateField(field)) hasError = true;
+        });
+        if (hasError) e.preventDefault();
+    });
+
+    // Set max DOB to today 
+    const dobField = document.getElementById("dob");
+    if (dobField) dobField.max = new Date().toISOString().split("T")[0];
+
+    //  Employee ID auto-generate based on department 
+    const empIdField = document.getElementById("empId");
+    const deptField = document.getElementById("department");
+    let counter = 1;
+
+    const generateEmpId = (dept) => {
+        if (!dept || dept.trim() === "") dept = "EMP";
+        const prefix = dept.length >= 3 ? dept.substring(0, 3).toUpperCase() : dept.toUpperCase();
+        return prefix + String(counter).padStart(3, '0');
+    };
+
+    if (deptField && empIdField) {
+        deptField.addEventListener("input", () => {
+            empIdField.value = generateEmpId(deptField.value);
+        });
+        empIdField.value = generateEmpId(deptField.value);
+    }
+
+});
+</script>
+
+</body>
+</html>

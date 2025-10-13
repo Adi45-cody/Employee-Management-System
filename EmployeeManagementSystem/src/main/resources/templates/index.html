@@ -1,0 +1,15 @@
+<html xmlns:th="http://www.thymeleaf.org" >
+<head><title>Employee Portal</title></head>
+<body style="display: flex; justify-content: center; align-items: center; height:50vh;flex-direction: column;">
+<h2>Welcome to Employee Portal</h2>
+
+<form th:action="@{/employeeForm}" method="get" >
+<button type="submit"> Add Employee</button>
+</form>
+
+
+<form th:action="@{/viewEmployees}" method="get">
+<button type="submit"> View Employee </button>
+</form>
+</body>
+</html>

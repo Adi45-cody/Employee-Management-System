@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Employee List</title></head>
+<body>
+<h2>Employee List</h2>
+
+<table border="1">
+    <tr>
+        <th>Emp ID</th>
+        <th>Name</th>
+        <th>Action</th>
+    </tr>
+    <tr th:each="emp : ${employees}">
+        <td th:text="${emp.empId}"></td>
+        <td th:text="${emp.empName}"></td>
+        <td>
+            <a th:href="@{/viewEmp(id=${emp.id})}">
+                <button>View</button>
+            </a>
+        </td>
+    </tr>
+</table>
+
+<div th:if="${selectedEmployee != null}">
+    <h3>Employee Details</h3>
+    <p>ID: <span th:text="${selectedEmployee.empId}"></span></p>
+    <p>Name: <span th:text="${selectedEmployee.empName}"></span></p>
+    <p>DOB: <span th:text="${selectedEmployee.dob}"></span></p>
+    <p>Gender:<span th:text="${selectedEmployee.gender}"></span></p>
+    <p>Present Address: <span th:text="${selectedEmployee.presentAddress}"></span></p>
+    <p>Permanent Address: <span th:text="${selectedEmployee.permanentAddress}"></span></p>
+    <p>Email: <span th:text="${selectedEmployee.emailId}"></span></p>
+    <p>Contact: <span th:text="${selectedEmployee.contact}"></span></p>
+    <p>Department: <span th:text="${selectedEmployee.department.name}"></span></p>
+    <p>Salary: <span th:text="${selectedEmployee.salary}"></span></p>
+    <p>Qualification: <span th:text="${selectedEmployee.qualification}"></span></p>
+    <p>University: <span th:text="${selectedEmployee.university}"></span></p>
+    <p>Year Of Passing: <span th:text="${selectedEmployee.yearOfPassing}"></span></p>
+    <p>Aadhaar Number: <span th:text="${selectedEmployee.aadhaarNumber}"></span></p>
+    <p>PAN Number: <span th:text="${selectedEmployee.panNumber}"></span></p>
+</div>
+
+<form th:action="@{/}" method="get">
+    <button type="submit">Back to Home</button>
+</form>
+</body>
+</html>
