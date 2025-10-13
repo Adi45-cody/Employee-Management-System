@@ -12,10 +12,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan(basePackages = "entity")
 @EnableJpaRepositories(basePackages = "entity")
 @EnableAutoConfiguration
-public class Uno10Application {
+public class EmployeeManagementSystemApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Uno10Application.class, args);
+		SpringApplication.run(EmployeeManagementSystemApplication.class, args);
 	}
 
 }
