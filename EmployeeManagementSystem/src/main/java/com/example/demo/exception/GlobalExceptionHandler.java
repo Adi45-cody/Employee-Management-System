@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
 		
 	}
 	
-	@ExceptionHandler(RuntimeException.class) //Handles any RuntimeException thrown in the application
+	/*@ExceptionHandler(RuntimeException.class) //Handles any RuntimeException thrown in the application
     public ResponseEntity<Map<String, Object>> handleRuntime(RuntimeException ex) { 
         Map<String, Object> error = new HashMap<>(); //Creates a new map for runtime errors Adds status 404 (Not Found)
         error.put("status", 404);
@@ -44,6 +44,36 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(404).body(error); //Returns HTTP 404 Not Found response with the error map as JSON 
         //.status(404) sets the HTTP status.
         //.body(error) sets the response content.
+    }*/
+	
+	// Invalid file type
+    @ExceptionHandler(InvalidFileTypeException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidFileType(InvalidFileTypeException ex) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("status", 415); // 415 Unsupported Media Type
+        error.put("timestamp", LocalDateTime.now());
+        error.put("message", ex.getMessage());
+        return ResponseEntity.status(415).body(error);
+    }
+    
+ // File too large
+    @ExceptionHandler(FileSizeExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleFileSize(FileSizeExceededException ex) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("status", 413); // 413 Payload Too Large
+        error.put("timestamp", LocalDateTime.now());
+        error.put("message", ex.getMessage());
+        return ResponseEntity.status(413).body(error);
+    }
+    
+ // Generic Runtime exception
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, Object>> handleRuntime(RuntimeException ex) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("status", 500);
+        error.put("timestamp", LocalDateTime.now());
+        error.put("message", ex.getMessage());
+        return ResponseEntity.status(500).body(error);
     }
 	
 }//end of class
