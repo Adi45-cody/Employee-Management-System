@@ -54,7 +54,7 @@ public class FileController {
                     ". Allowed types: " + type.getAllowedExtensions());
         }
 
-        // Validate size 
+        // Validate size(1mb) 
         long maxSize = 1 * 1024 * 1024;
         if (file.getSize() > maxSize) {
             throw new FileSizeExceededException("File size exceeds 1MB limit.");
