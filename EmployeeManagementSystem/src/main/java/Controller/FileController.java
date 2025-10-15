@@ -54,9 +54,9 @@ public class FileController {
         }
 
         // Validate size 
-        long maxSize = 5 * 1024 * 1024;
+        long maxSize = 1 * 1024 * 1024;
         if (file.getSize() > maxSize) {
-            throw new FileSizeExceededException("File size exceeds 5MB limit.");
+            throw new FileSizeExceededException("File size exceeds 1MB limit.");
         }
 
         try {
