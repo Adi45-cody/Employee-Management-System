@@ -23,11 +23,11 @@ import com.example.demo.model.FileType;
 public class FileController {
 
     // Base upload folder (default: "Uploads" inside project folder)
-    @Value("${file.upload-dir:Uploads}")
+    @Value("${file.upload-dir:Uploads}")//Property Injection
     private String uploadDir;
 
     //  Upload file
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) //Upload Endpoint
     public ResponseEntity<Map<String, Object>> uploadFile(
             @RequestParam("file") MultipartFile file,
             @RequestParam("type") FileType type) {
@@ -82,7 +82,7 @@ public class FileController {
             response.put("filePath", filePath);
 
             return ResponseEntity.ok(response);
-
+            //Error handling
         } catch (IOException e) {
             throw new RuntimeException("Error while uploading file: " + e.getMessage(), e);
         }
