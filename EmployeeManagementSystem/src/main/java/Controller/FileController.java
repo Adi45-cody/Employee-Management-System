@@ -3,6 +3,7 @@ package Controller;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,25 +88,47 @@ public class FileController {
         }
     }
 
-    // List all files (optionally filtered by type)
     @GetMapping("/list")
     public ResponseEntity<Map<String, Object>> getFiles(
-            @RequestParam(value = "type", required = false) FileType type) {
+            @RequestParam(value = "type", required = false) String typeParam) {
 
         Map<String, Object> response = new HashMap<>();
-        File baseFolder = new File(System.getProperty("user.dir") + File.separator + uploadDir);
-        File folderToList = (type != null) ? new File(baseFolder, type.name()) : baseFolder;
+        File baseFolder = new File(uploadDir);
 
-        if (!folderToList.exists() || folderToList.list() == null) {
-            response.put("message", "No files found.");
+        File folderToList;
+        if (typeParam != null && !typeParam.isBlank()) {
+            try {
+                FileType type = FileType.valueOf(typeParam.toUpperCase());
+                folderToList = new File(baseFolder, type.name());
+            } catch (IllegalArgumentException e) {
+                response.put("message", "Invalid type specified: " + typeParam);
+                response.put("files", List.of());
+                return ResponseEntity.badRequest().body(response);
+            }
+        } else {
+            folderToList = baseFolder;
+        }
+
+        System.out.println("Checking folder: " + folderToList.getAbsolutePath());
+
+        if (!folderToList.exists()) {
+            response.put("message", "No such folder: " + folderToList.getName());
+            response.put("files", List.of());
+            return ResponseEntity.ok(response);
+        }
+
+        String[] filesArray = folderToList.list();
+        if (filesArray == null || filesArray.length == 0) {
+            response.put("message", "No files found in folder: " + folderToList.getName());
             response.put("files", List.of());
             return ResponseEntity.ok(response);
         }
 
         response.put("message", "Files retrieved successfully.");
-        response.put("files", List.of(folderToList.list()));
+        response.put("files", Arrays.asList(filesArray));
         return ResponseEntity.ok(response);
     }
+
     
     
 }
