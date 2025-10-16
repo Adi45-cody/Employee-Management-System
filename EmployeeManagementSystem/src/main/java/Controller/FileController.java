@@ -8,6 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -128,7 +132,106 @@ public class FileController {
         response.put("files", Arrays.asList(filesArray));
         return ResponseEntity.ok(response);
     }
-
     
+    //update
+    @PutMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, Object>> updateFile(
+            @RequestParam("file") MultipartFile newFile,
+            @RequestParam("type") FileType type,
+            @RequestParam("oldFileName") String oldFileName) {
+		
+    	 Map<String, Object> response = new HashMap<>();
+
+    	    File baseFolder = new File(System.getProperty("user.dir") + File.separator + uploadDir);
+    	    File typeFolder = new File(baseFolder, type.name());
+
+    	    File oldFile = new File(typeFolder, oldFileName);
+
+    	    // Check existence
+    	    if (!oldFile.exists()) {
+    	        throw new RuntimeException("Old file not found: " + oldFileName);
+    	    }
+
+    	    // Validate extension
+    	    String newFileName = newFile.getOriginalFilename();
+    	    String newExt = newFileName.substring(newFileName.lastIndexOf(".") + 1).toLowerCase();
+
+    	    if (!type.getAllowedExtensions().contains(newExt)) {
+    	        throw new InvalidFileTypeException("Invalid file type for update. Allowed: " + type.getAllowedExtensions());
+    	    }
+
+    	    // Delete old and save new
+    	    oldFile.delete();
+
+    	    try (FileOutputStream fout = new FileOutputStream(new File(typeFolder, newFileName))) {
+    	        fout.write(newFile.getBytes());
+    	    } catch (IOException e) {
+    	        throw new RuntimeException("Error while updating file: " + e.getMessage());
+    	    }
+
+    	    response.put("message", "File updated successfully!");
+    	    response.put("oldFile", oldFileName);
+    	    response.put("newFile", newFileName);
+    	    response.put("type", type.name());
+
+    	    return ResponseEntity.ok(response);
+    	
+    }
+    
+    
+ // download file
+    @GetMapping("/download")
+    public ResponseEntity<Resource> downloadFile(
+            @RequestParam("type") FileType type,
+            @RequestParam("fileName") String fileName) {
+
+        // Define the file path (base + folder + filename)
+        File baseFolder = new File(System.getProperty("user.dir") + File.separator + uploadDir);
+        File typeFolder = new File(baseFolder, type.name());
+        File file = new File(typeFolder, fileName);
+
+        // Check if file exists
+        if (!file.exists() || !file.isFile()) {
+            throw new RuntimeException("File not found: " + fileName);
+        }
+
+        // Create a resource from the file
+        Resource resource = new FileSystemResource(file);
+
+        // Build response with download headers
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+                .contentLength(file.length())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
+    }
+
+ // delete file
+    @DeleteMapping("/delete")
+    public ResponseEntity<Map<String, Object>> deleteFile(
+            @RequestParam("type") FileType type,
+            @RequestParam("fileName") String fileName) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        File file = new File(System.getProperty("user.dir") + File.separator + uploadDir
+                + File.separator + type.name() + File.separator + fileName);
+
+        if (!file.exists()) {
+            response.put("message", "File not found: " + fileName);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        if (file.delete()) {
+            response.put("message", "File deleted successfully!");
+            response.put("fileName", fileName);
+            response.put("fileType", type.name());
+        } else {
+            response.put("message", "Failed to delete file: " + fileName);
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
     
 }
