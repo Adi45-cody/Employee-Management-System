@@ -3,6 +3,7 @@ package Controller;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,11 @@ import com.example.demo.exception.FileSizeExceededException;
 import com.example.demo.exception.InvalidFileTypeException;
 import com.example.demo.model.FileType;
 
+import entity.EmployeeFile;
+import entity.EmployeeFileRepo;
+import entity.EmployeeRepository;
+import entity.Employees;
+
 @RestController
 @RequestMapping("/files")
 public class FileController {
@@ -29,15 +36,28 @@ public class FileController {
     // Base upload folder (default: "Uploads" inside project folder)
     @Value("${file.upload-dir:Uploads}")//Property Injection
     private String uploadDir;
-
+    
+    
+    @Autowired
+    private EmployeeRepository empRepo;
+    
+    @Autowired
+    private EmployeeFileRepo fileRepo;
     //  Upload file
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) //Upload Endpoint
     public ResponseEntity<Map<String, Object>> uploadFile(
             @RequestParam("file") MultipartFile file,
-            @RequestParam("type") FileType type) {
+            @RequestParam("type") FileType type,
+            @RequestParam("employeeId") String employeeId) {
 
         Map<String, Object> response = new HashMap<>();
 
+        Employees emp= empRepo.findByEmpId(employeeId);
+        if(emp==null) {
+        	
+        	throw new RuntimeException("Employee not found with id" +employeeId);
+        }
+        
         //  Empty file check
         if (file.isEmpty()) {
             throw new IllegalArgumentException("File is empty. Please select a valid file.");
@@ -71,13 +91,25 @@ public class FileController {
 
             File typeFolder = new File(baseFolder, type.name());
             if (!typeFolder.exists()) typeFolder.mkdirs();
-
+            
+            File empFolder = new File(typeFolder, emp.getEmpId());
+            if(!empFolder.exists()) empFolder.mkdirs();
+            
             //  Save the file
-            String filePath = typeFolder.getAbsolutePath() + File.separator + file.getOriginalFilename();
+            String filePath = empFolder.getAbsolutePath() + File.separator + file.getOriginalFilename();
             try (FileOutputStream fout = new FileOutputStream(filePath)) {
                 fout.write(file.getBytes());
             }
             
+         // Save metadata to DB
+            EmployeeFile empFile = new EmployeeFile();
+            empFile.setEmployeeId(emp.getEmpId());
+            empFile.setFileName(file.getOriginalFilename());
+            empFile.setFilePath(filePath);
+            empFile.setFiletype(type);
+
+            fileRepo.save(empFile);
+
             
             //  Prepare response
             response.put("message", "File uploaded successfully!");
@@ -97,7 +129,7 @@ public class FileController {
             @RequestParam(value = "type", required = false) String typeParam) {
 
         Map<String, Object> response = new HashMap<>();
-        File baseFolder = new File(uploadDir);
+        File baseFolder = new File(System.getProperty("user.dir") + File.separator + uploadDir);
 
         File folderToList;
         if (typeParam != null && !typeParam.isBlank()) {
@@ -113,38 +145,56 @@ public class FileController {
             folderToList = baseFolder;
         }
 
-        System.out.println("Checking folder: " + folderToList.getAbsolutePath());
-
         if (!folderToList.exists()) {
             response.put("message", "No such folder: " + folderToList.getName());
             response.put("files", List.of());
             return ResponseEntity.ok(response);
         }
 
-        String[] filesArray = folderToList.list();
-        if (filesArray == null || filesArray.length == 0) {
-            response.put("message", "No files found in folder: " + folderToList.getName());
-            response.put("files", List.of());
-            return ResponseEntity.ok(response);
-        }
+        // Recursively collect all files in subfolders
+        List<String> allFiles = new ArrayList<>();
+        collectFiles(folderToList, allFiles, folderToList.getAbsolutePath());
 
         response.put("message", "Files retrieved successfully.");
-        response.put("files", Arrays.asList(filesArray));
+        response.put("files", allFiles);
         return ResponseEntity.ok(response);
     }
+
+    // Helper method to collect files recursively
+    private void collectFiles(File folder, List<String> fileList, String basePath) {
+        File[] files = folder.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    collectFiles(f, fileList, basePath);
+                } else {
+                    // Show relative path from type folder
+                    fileList.add(f.getAbsolutePath().substring(basePath.length() + 1));
+                }
+            }
+        }
+    }
+
+
     
     //update
     @PutMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, Object>> updateFile(
             @RequestParam("file") MultipartFile newFile,
             @RequestParam("type") FileType type,
+            @RequestParam("employeeId") String employeeId,
             @RequestParam("oldFileName") String oldFileName) {
 		
     	 Map<String, Object> response = new HashMap<>();
 
+    	 Employees emp = empRepo.findByEmpId(employeeId);
+    	    if(emp == null) {
+    	        throw new RuntimeException("Employee not found with id " + employeeId);
+    	    }
+    	 
     	    File baseFolder = new File(System.getProperty("user.dir") + File.separator + uploadDir);
     	    File typeFolder = new File(baseFolder, type.name());
-
+    	    File empFolder = new File(typeFolder, emp.getEmpId());
     	    File oldFile = new File(typeFolder, oldFileName);
 
     	    // Check existence
@@ -163,7 +213,7 @@ public class FileController {
     	    // Delete old and save new
     	    oldFile.delete();
 
-    	    try (FileOutputStream fout = new FileOutputStream(new File(typeFolder, newFileName))) {
+    	    try (FileOutputStream fout = new FileOutputStream(new File(empFolder, newFileName))) {
     	        fout.write(newFile.getBytes());
     	    } catch (IOException e) {
     	        throw new RuntimeException("Error while updating file: " + e.getMessage());
@@ -173,6 +223,7 @@ public class FileController {
     	    response.put("oldFile", oldFileName);
     	    response.put("newFile", newFileName);
     	    response.put("type", type.name());
+    	    response.put("employeeId", employeeId);
 
     	    return ResponseEntity.ok(response);
     	
@@ -183,12 +234,20 @@ public class FileController {
     @GetMapping("/download")
     public ResponseEntity<Resource> downloadFile(
             @RequestParam("type") FileType type,
+            @RequestParam("employeeId") String employeeId,
             @RequestParam("fileName") String fileName) {
 
+    	Employees emp = empRepo.findByEmpId(employeeId);
+        if(emp == null) {
+            throw new RuntimeException("Employee not found with id " + employeeId);
+        }
+    	
         // Define the file path (base + folder + filename)
         File baseFolder = new File(System.getProperty("user.dir") + File.separator + uploadDir);
         File typeFolder = new File(baseFolder, type.name());
-        File file = new File(typeFolder, fileName);
+        File empFolder = new File(typeFolder, emp.getEmpId());
+        File file = new File(empFolder, fileName);
+        
 
         // Check if file exists
         if (!file.exists() || !file.isFile()) {
@@ -210,12 +269,19 @@ public class FileController {
     @DeleteMapping("/delete")
     public ResponseEntity<Map<String, Object>> deleteFile(
             @RequestParam("type") FileType type,
+            @RequestParam("employeeId") String employeeId,
             @RequestParam("fileName") String fileName) {
 
         Map<String, Object> response = new HashMap<>();
 
-        File file = new File(System.getProperty("user.dir") + File.separator + uploadDir
-                + File.separator + type.name() + File.separator + fileName);
+        Employees emp = empRepo.findByEmpId(employeeId);
+        if(emp == null) {
+            throw new RuntimeException("Employee not found with id " + employeeId);
+        }
+
+        File empFolder = new File(System.getProperty("user.dir") + File.separator + uploadDir
+                + File.separator + type.name() + File.separator + emp.getEmpId());
+        File file = new File(empFolder, fileName);
 
         if (!file.exists()) {
             response.put("message", "File not found: " + fileName);
@@ -226,12 +292,14 @@ public class FileController {
             response.put("message", "File deleted successfully!");
             response.put("fileName", fileName);
             response.put("fileType", type.name());
+            response.put("employeeId", employeeId);
         } else {
             response.put("message", "Failed to delete file: " + fileName);
         }
 
         return ResponseEntity.ok(response);
     }
+
 
     
 }

@@ -19,13 +19,13 @@ public class EmployeeFile {
 	
 	private FileType filetype;
 	
-	private Long employeeId;
+	private String employeeId;
 
 	public EmployeeFile() {
 		super();
 	}
 
-	public EmployeeFile(Long id, String fileName, String filePath, FileType filetype, Long employeeId) {
+	public EmployeeFile(Long id, String fileName, String filePath, FileType filetype, String employeeId) {
 		super();
 		this.id = id;
 		this.fileName = fileName;
@@ -66,11 +66,11 @@ public class EmployeeFile {
 		this.filetype = filetype;
 	}
 
-	public Long getEmployeeId() {
+	public String getEmployeeId() {
 		return employeeId;
 	}
 
-	public void setEmployeeId(Long employeeId) {
+	public void setEmployeeId(String employeeId) {
 		this.employeeId = employeeId;
 	}
 	

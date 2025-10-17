@@ -27,4 +27,5 @@ public interface EmployeeRepository extends JpaRepository<Employees, Long> {
 	@Query("SELECT new dto.EmployeeDeptInfo(e.empName, e.department.name, e.emailId, e.aadhaarNumber, e.panNumber) " +"FROM Employees e " +"WHERE e.department.name = :deptName")
 	    List<EmployeeDeptInfo> findByDepartmentName(@Param("deptName") String deptName);
 	
+	Employees findByEmpId(String empId);
 }
