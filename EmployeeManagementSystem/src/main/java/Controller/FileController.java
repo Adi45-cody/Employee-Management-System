@@ -300,6 +300,35 @@ public class FileController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/employee")
+    public ResponseEntity<Map<String, Object>> getFilesByEmployee(
+            @RequestParam("employeeId") String employeeId,
+            @RequestParam(value = "type", required = false) com.example.demo.model.FileType type) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        // Check if employee exists
+        Employees emp = empRepo.findByEmpId(employeeId);
+        if (emp == null) {
+            throw new RuntimeException("Employee not found with id " + employeeId);
+        }
+
+        List<EmployeeFile> files;
+        if (type != null) {
+            // Filter by type
+            files = fileRepo.findByEmployeeIdAndFiletype(employeeId, type);
+        } else {
+            // Get all files
+            files = fileRepo.findByEmployeeId(employeeId);
+        }
+
+        response.put("employeeId", employeeId);
+        response.put("employeeName", emp.getEmpName());
+        response.put("filesCount", files.size());
+        response.put("files", files); // returns list of EmployeeFile objects
+
+        return ResponseEntity.ok(response);
+    }
 
     
 }
