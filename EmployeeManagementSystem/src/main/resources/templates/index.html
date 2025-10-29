@@ -1,15 +1,29 @@
-<html xmlns:th="http://www.thymeleaf.org" >
-<head><title>Employee Portal</title></head>
-<body style="display: flex; justify-content: center; align-items: center; height:50vh;flex-direction: column;">
-<h2>Welcome to Employee Portal</h2>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Employee Portal</title>
+</head>
+<body style="display: flex; justify-content: center; align-items: center; height:50vh; flex-direction: column;">
+    <h2>Welcome to Employee Portal</h2>
 
-<form th:action="@{/employeeForm}" method="get" >
-<button type="submit"> Add Employee</button>
+    <div>
+        <!-- Visible only to ADMIN -->
+        <a th:href="@{/employeeForm}" sec:authorize="hasRole('ADMIN')">
+            <button type="button">Add Employee</button>
+        </a>
+
+        <!-- Visible to both ADMIN and USER -->
+        <a th:href="@{/viewEmployees}" sec:authorize="hasAnyRole('ADMIN','USER')">
+            <button type="button">View Employees</button>
+        </a>
+    </div>
+
+    <div style="margin-top:20px;">
+    <form th:action="@{/logout}" method="post" style="margin-top:20px;">
+    <button type="submit">Logout</button>
 </form>
+</div>
 
-
-<form th:action="@{/viewEmployees}" method="get">
-<button type="submit"> View Employee </button>
-</form>
 </body>
 </html>
