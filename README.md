@@ -1,5 +1,5 @@
 
-# 🌐 Employee Management System
+#  Employee Management System
 
 A **Spring Boot-based web application** for managing employee data with secure login, REST APIs, file management, and a user-friendly web interface built using **Thymeleaf**.
 
@@ -7,13 +7,13 @@ The system supports **both MySQL and PostgreSQL**, offers **role-based access (U
 
 ---
 
-## 🚀 Project Overview
+##  Project Overview
 The **Employee Management System** allows organizations to efficiently handle employee records with features like adding, updating, viewing, and deleting employees.  
 It also provides file upload and download functionalities, RESTful APIs, and secure access control using **Spring Security** with role-based authorization.
 
 ---
 
-## ⚙️ Tech Stack
+##  Tech Stack
 | Category | Technology |
 |---|---|
 | Backend | Java, Spring Boot |
@@ -25,9 +25,9 @@ It also provides file upload and download functionalities, RESTful APIs, and sec
 
 ---
 
-## 🧭 API & Web Endpoints
+##  API & Web Endpoints
 
-### 🔓 Public (No Login Required)
+###  Public (No Login Required)
 | Endpoint | Method | Description |
 |---:|:---:|---|
 | `/` | GET | Home page (optional redirect to `/main`) |
@@ -38,7 +38,7 @@ It also provides file upload and download functionalities, RESTful APIs, and sec
 
 ---
 
-### 🔐 After Login (Web Pages)
+###  After Login (Web Pages)
 | Endpoint | Method | Roles | Description |
 |---:|:---:|:---:|---|
 | `/main` | GET | USER, ADMIN | Dashboard page |
@@ -50,7 +50,7 @@ It also provides file upload and download functionalities, RESTful APIs, and sec
 
 ---
 
-### 🧰 REST APIs (Swagger / Postman)
+###  REST APIs (Swagger / Postman)
 | Endpoint | Method | Roles | Description |
 |---:|:---:|:---:|---|
 | `/api/employees` | GET | USER, ADMIN | Fetch all employees |
@@ -60,7 +60,7 @@ It also provides file upload and download functionalities, RESTful APIs, and sec
 
 ---
 
-## 🔑 Authentication Details (Testing)
+##  Authentication Details (Testing)
 > Use these default credentials for quick local testing only. In production, create proper users and never commit real credentials.
 
 | Username | Password | Role |
@@ -70,20 +70,20 @@ It also provides file upload and download functionalities, RESTful APIs, and sec
 
 ---
 ````
-## 🖼️ Features
-- 👥 Manage Employees (Add / Update / Delete / View)  
-- 🧾 RESTful APIs with JSON responses  
-- 🗂️ File Upload, Download, Update, and Delete  
-- 🔒 Role-Based Access (Admin & User)  
-- 💾 Supports both MySQL and PostgreSQL  
-- 🧩 Thymeleaf UI for web users  
-- 📄 Swagger UI for API documentation and testing
+##  Features
+-  Manage Employees (Add / Update / Delete / View)  
+-  RESTful APIs with JSON responses  
+-  File Upload, Download, Update, and Delete  
+-  Role-Based Access (Admin & User)  
+-  Supports both MySQL and PostgreSQL  
+-  Thymeleaf UI for web users  
+-  Swagger UI for API documentation and testing
 
 ---
 
-## ⚡ How to Run Locally
+##  How to Run Locally
 ````
-### 1️⃣ Clone the Repository
+### 1 Clone the Repository
 ```bash
 git clone https://github.com/Adi45-cody/Employee-Management-System.git
 cd Employee-Management-System
@@ -91,7 +91,7 @@ cd Employee-Management-System
 
 ---
 
-### 2️⃣ Configure the Database
+### 2 Configure the Database
 
 Open `src/main/resources/application.properties` and update with your database credentials.
 
@@ -113,7 +113,7 @@ spring.datasource.password=YOUR_PG_PASSWORD
 
 ---
 
-### 3️⃣ Build and Run the Application
+### 3 Build and Run the Application
 
 ```bash
 mvn clean install
@@ -124,18 +124,18 @@ Application will run on port `8080` by default.
 
 ---
 
-### 4️⃣ Access the Application
+### 4 Access the Application
 
 | Platform               | URL                                           | Description                   |
 | ---------------------- | --------------------------------------------- | ----------------------------- |
-| 🌍 Web App (Thymeleaf) | `http://localhost:8080/main`                  | Dashboard (requires login)    |
-| 🔑 Login Page          | `http://localhost:8080/login`                 | Enter admin/user credentials  |
-| 🧾 Swagger UI          | `http://localhost:8080/swagger-ui/index.html` | Interactive API documentation |
-| 🧪 REST API            | `http://localhost:8080/api/employees`         | Use with Postman (Basic Auth) |
+|  Web App (Thymeleaf) | `http://localhost:8080/main`                  | Dashboard (requires login)    |
+|  Login Page          | `http://localhost:8080/login`                 | Enter admin/user credentials  |
+|  Swagger UI          | `http://localhost:8080/swagger-ui/index.html` | Interactive API documentation |
+|  REST API            | `http://localhost:8080/api/employees`         | Use with Postman (Basic Auth) |
 
 ---
 
-## 🗂️ Project Structure
+##  Project Structure
 
 ```
 Employee-Management-System/
@@ -156,7 +156,7 @@ Employee-Management-System/
 
 ---
 
-## 💡 Notes
+##  Notes
 
 * Use **Postman with Basic Auth** to test APIs without the browser login.
 * Swagger will prompt for credentials when security is enabled.
@@ -165,21 +165,21 @@ Employee-Management-System/
 
 ---
 
-## 🚀 Future Enhancements
+##  Future Enhancements
 
-* 🔐 JWT-based Authentication
-* 🗃️ Database Migration with Flyway
-* 📊 Admin Dashboard with Analytics
-* 📧 Email Notifications for Employee Updates
-* 📱 Responsive Frontend with React or Angular
+*  JWT-based Authentication
+*  Database Migration with Flyway
+*  Admin Dashboard with Analytics
+*  Email Notifications for Employee Updates
+*  Responsive Frontend with React or Angular
 
 ---
 
-## 🧑‍💻 Author
+##  Author
 
 **Aditya Dhamal**
-💼 *Java Developer Intern — Vidya Online Services Pune Pvt. Ltd.*
-📧 [Contact via GitHub Issues](https://github.com/Adi45-cody)
+ *Java Developer Intern — Vidya Online Services Pune Pvt. Ltd.*
+ [Contact via GitHub Issues](https://github.com/Adi45-cody)
 
 ```
 
